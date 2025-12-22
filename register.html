@@ -139,16 +139,6 @@ async function register() {
     // -------------------------------
     // Supabase signUp + redirect URL 設定
     // -------------------------------
-    let { data, error } = await supabase.auth.signUp(
-        {
-            email: mailText,
-            password: passText,
-            options: {
-                emailRedirectTo: "https://yazyonline.vercel.app/login.html"
-            }
-        }
-    );
-
     if (error) {
 
         msg.textContent = error.message;
