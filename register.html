@@ -186,21 +186,6 @@ async function register() {
     // -------------------
     if (error) {
 
-        // 既に登録済み
-        if (error.message.includes("User already registered")) {
-
-            msg.textContent =
-                "このメールは既に登録済みです。ログイン画面へ移動します。";
-            msg.className = "error";
-
-            setTimeout(() => {
-                window.location.href = "login.html";
-            }, 2000);
-
-            return;
-        }
-
-        // その他エラー
         msg.textContent = error.message;
         msg.className = "error";
 
