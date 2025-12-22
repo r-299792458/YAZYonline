@@ -130,36 +130,42 @@ async function register() {
         return;
     }
 
-    // -------------------------------
-    // 登録ボタンを無効化する
-    // -------------------------------
-    document.getElementById("registerBtn").disabled = true;
-    document.getElementById("registerBtn").style.opacity = "0.4";
+    // 登録ボタン無効化
+    const btn = document.getElementById("registerBtn");
+    btn.disabled = true;
+    btn.style.opacity = "0.4";
 
-    // -------------------------------
-    // Supabase signUp + redirect URL 設定
-    // -------------------------------
+    // Supabase 登録処理（認証メール送信）
+    let { data, error } = await supabase.auth.signUp(
+        {
+            email: mailText,
+            password: passText,
+            options: {
+                emailRedirectTo: "https://yazyonline.vercel.app/login.html"
+            }
+        }
+    );
+
     if (error) {
 
         msg.textContent = error.message;
         msg.className = "error";
 
-        document.getElementById("registerBtn").disabled = false;
-        document.getElementById("registerBtn").style.opacity = "1";
+        // 失敗したら戻す
+        btn.disabled = false;
+        btn.style.opacity = "1";
 
     } else {
 
         msg.textContent =
-            "確認メールを送信しました！受信メールを確認し、リンクを押して認証してください。";
+            "確認メールを送信しました！受信メールの認証リンクを押してください。";
 
         msg.className = "success";
 
-        // 登録後はページ移動しない ↓
+        // 入力欄ロック
         email.disabled = true;
         password.disabled = true;
-
     }
-
 }
 
 // ボタン
