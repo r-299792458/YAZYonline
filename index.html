@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Main</title>
+</head>
+<body>
+
+<h1>Welcome!</h1>
+
+<button id="logoutBtn">Logout</button>
+
+<script type="module">
+import { supabase } from "./supabase.js";
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.href = "login.html";
+});
+
+</script>
+
+</body>
+</html>
