@@ -6,9 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
+
         body {
             margin: 0;
             padding: 0;
@@ -69,24 +68,33 @@
             font-size: 0.95rem;
         }
 
-        .success {
-            color: #32ff78;
-        }
-        .error {
-            color: #ff4d4d;
-        }
+        .success { color: #32ff78; }
+        .error { color: #ff4d4d; }
 
-        .pwBox {
-            position: relative;
-        }
+        .pwBox { position: relative; }
 
         .pwToggle {
             position: absolute;
             right: 12px;
             top: 13px;
             cursor: pointer;
-            color: #bbbbbb
+            color: #bbbbbb;
             font-size: 0.9rem;
+        }
+
+        .linkArea {
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .linkArea a {
+            color: #4fa7ff;
+            font-size: 0.95rem;
+            text-decoration: none;
+        }
+
+        .linkArea a:hover {
+            text-decoration: underline;
         }
 
     </style>
@@ -100,11 +108,16 @@
     <input id="email" type="email" placeholder="メールアドレス">
 
     <div class="pwBox">
-        <input id="password" type="password" placeholder="パスワード">
+        <input id="password" type="password" placeholder="パスワード (6文字以上)">
         <span id="toggle" class="pwToggle">表示</span>
     </div>
 
     <button id="registerBtn">登録</button>
+
+    <div class="linkArea">
+        <a href="login.html">既にアカウントをお持ちの方はこちら</a>
+    </div>
+
     <p id="msg"></p>
 
 </div>
@@ -118,59 +131,100 @@ const password = document.getElementById("password");
 const msg = document.getElementById("msg");
 const toggle = document.getElementById("toggle");
 
+// ------------------
+// メール形式検証用
+// ------------------
+function validEmail(text) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text);
+}
+
+// ------------------
 // 登録実行処理
+// ------------------
 async function register() {
 
     const mailText = email.value.trim();
     const passText = password.value.trim();
 
+    // 必須入力
     if (!mailText || !passText) {
         msg.textContent = "メールアドレスとパスワードを入力してください。";
         msg.className = "error";
         return;
     }
 
-    // 登録ボタン無効化
+    // メール形式検証
+    if (!validEmail(mailText)) {
+        msg.textContent = "メールアドレスの形式が正しくありません。";
+        msg.className = "error";
+        return;
+    }
+
+    // パスワード最低6文字
+    if (passText.length < 6) {
+        msg.textContent = "パスワードは6文字以上必要です。";
+        msg.className = "error";
+        return;
+    }
+
+    // ボタン無効化
     const btn = document.getElementById("registerBtn");
     btn.disabled = true;
     btn.style.opacity = "0.4";
 
-    // Supabase 登録処理（認証メール送信）
-    let { data, error } = await supabase.auth.signUp(
-        {
-            email: mailText,
-            password: passText,
-            options: {
-                emailRedirectTo: "https://yazyonline.vercel.app/login.html"
-            }
+    // Supabase 登録処理
+    let { data, error } = await supabase.auth.signUp({
+        email: mailText,
+        password: passText,
+        options: {
+            emailRedirectTo: "https://yazyonline.vercel.app/login.html"
         }
-    );
+    });
 
+    // -------------------
+    // エラー処理
+    // -------------------
     if (error) {
 
+        // 既に登録済み
+        if (error.message.includes("User already registered")) {
+
+            msg.textContent =
+                "このメールは既に登録済みです。ログイン画面へ移動します。";
+            msg.className = "error";
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 2000);
+
+            return;
+        }
+
+        // その他エラー
         msg.textContent = error.message;
         msg.className = "error";
 
-        // 失敗したら戻す
         btn.disabled = false;
         btn.style.opacity = "1";
-
-    } else {
-
-        msg.textContent =
-            "確認メールを送信しました！受信メールの認証リンクを押してください。";
-
-        msg.className = "success";
-
-        // 入力欄ロック
-        email.disabled = true;
-        password.disabled = true;
+        return;
     }
+
+    // -------------------
+    // 成功
+    // -------------------
+    msg.textContent =
+        "確認メールを送信しました！受信メールの認証リンクを押してください。";
+
+    msg.className = "success";
+
+    email.disabled = true;
+    password.disabled = true;
+
 }
 
 // ボタン
 document.getElementById("registerBtn")
-    .addEventListener("click", register);
+.addEventListener("click", register);
 
 // Enterキー送信
 document.addEventListener("keypress", (e) => {
@@ -185,7 +239,6 @@ toggle.addEventListener("click", () => {
         password.type = "password";
     }
 });
-
 </script>
 
 </body>
