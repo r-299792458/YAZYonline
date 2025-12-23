@@ -146,6 +146,68 @@
             from { opacity: 0; transform: scale(0.95); }
             to   { opacity: 1; transform: scale(1); }
         }
+
+        /* ===== 設定モーダル ===== */
+        #settingOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #settingModal {
+            background: #242424;
+            width: 92%;
+            max-width: 360px;
+            border-radius: 14px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .settingSection {
+            margin-bottom: 18px;
+        }
+
+        .settingSection h3 {
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+            color: #4fa7ff;
+        }
+
+        .settingItem {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border: none;
+            background: #333;
+            color: #fff;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .settingItem:hover {
+            background: #3d3d3d;
+        }
+
+        .settingNote {
+            font-size: 0.85rem;
+            color: #888;
+            padding-left: 4px;
+        }
+
+        .danger h3 {
+            color: #ff6b6b;
+        }
+
+        .dangerBtn {
+            background: #402020;
+            color: #ff6b6b;
+        }
+
     </style>
 </head>
 
@@ -189,6 +251,41 @@
             <p><strong>レベル：</strong>1</p>
             <p><strong>レート：</strong>0</p>
             <p><strong>実績：</strong>0 / 10</p>
+        </div>
+    </div>
+</div>
+
+<div id="settingOverlay" style="display:none;">
+    <div id="settingModal">
+        <div class="modalHeader">
+            <span>設定</span>
+            <button id="closeSetting">✕</button>
+        </div>
+
+        <div class="modalContent">
+
+            <div class="settingSection">
+                <h3>アカウント設定</h3>
+                <button class="settingItem">ニックネーム変更</button>
+                <button class="settingItem">メールアドレス変更</button>
+                <button class="settingItem">パスワード変更</button>
+            </div>
+
+            <div class="settingSection">
+                <h3>ゲーム設定</h3>
+                <p class="settingNote">準備中</p>
+            </div>
+
+            <div class="settingSection">
+                <h3>表示 / 操作</h3>
+                <p class="settingNote">準備中</p>
+            </div>
+
+            <div class="settingSection danger">
+                <h3>システム</h3>
+                <button class="settingItem dangerBtn">データ削除</button>
+            </div>
+
         </div>
     </div>
 </div>
@@ -247,6 +344,29 @@ closeProfile.addEventListener("click", () => {
 profileOverlay.addEventListener("click", (e) => {
     if (e.target === profileOverlay) {
         profileOverlay.style.display = "none";
+    }
+});
+
+/* =========================
+   設定モーダル
+========================= */
+const settingOverlay = document.getElementById("settingOverlay");
+const closeSetting = document.getElementById("closeSetting");
+
+// フッターの設定ボタン
+document.querySelector("footer button:nth-child(3)")
+    .addEventListener("click", () => {
+        settingOverlay.style.display = "flex";
+    });
+
+// 閉じる
+closeSetting.addEventListener("click", () => {
+    settingOverlay.style.display = "none";
+});
+
+settingOverlay.addEventListener("click", (e) => {
+    if (e.target === settingOverlay) {
+        settingOverlay.style.display = "none";
     }
 });
 </script>
