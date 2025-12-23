@@ -26,6 +26,12 @@ if (!session) {
         "ログイン中: " + session.user.email;
 }
 
+supabase.auth.onAuthStateChange((event, session) => {
+    if (!session) {
+        window.location.href = "login.html";
+    }
+});
+
 // ログアウト
 document.getElementById("logoutBtn").addEventListener("click", async () => {
     await supabase.auth.signOut();
