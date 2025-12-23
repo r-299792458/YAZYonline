@@ -208,6 +208,25 @@
             color: #ff6b6b;
         }
 
+        /* ===== ニックネームモーダル ===== */
+        #nicknameOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        #nicknameModal {
+            background: #242424;
+            width: 90%;
+            max-width: 320px;
+            border-radius: 14px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            animation: fadeIn 0.2s ease;
+        }
     </style>
 </head>
 
@@ -255,7 +274,7 @@
     </div>
 </div>
 
-<div id="settingOverlay" style="display:none;">
+<div id="nicknameOverlay" style="display:none;">
     <div id="settingModal">
         <div class="modalHeader">
             <span>設定</span>
@@ -291,7 +310,7 @@
 </div>
 
 <div id="nicknameOverlay" style="display:none;">
-    <div id="settingModal">
+    <div id="nicknameModal">
         <div class="modalHeader">
             <span>ニックネーム変更</span>
             <button id="closeNickname">✕</button>
@@ -328,9 +347,6 @@ const { data: { session } } = await supabase.auth.getSession();
 
 if (!session) {
     window.location.href = "login.html";
-} else {
-    document.getElementById("userEmail").textContent =
-        "👤 " + session.user.email;
 }
 
 /* =========================
@@ -453,6 +469,13 @@ saveNickname.addEventListener("click", async () => {
         nicknameOverlay.style.display = "none";
     }, 800);
 });
+
+nicknameOverlay.addEventListener("click", (e) => {
+    if (e.target === nicknameOverlay) {
+        nicknameOverlay.style.display = "none";
+    }
+});
+
 </script>
 </body>
 </html>
