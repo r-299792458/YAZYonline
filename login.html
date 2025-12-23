@@ -1,37 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
     <meta charset="utf-8" />
-    <title>Login</title>
+    <title>ログイン</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #1b1b1b;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            background: #242424;
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 360px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.6);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #e8e8e8;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #3a8dde;
+            color: white;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #2f72b3;
+        }
+
+        #msg {
+            margin-top: 14px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .error { color: #ff4d4d; }
+
+        .pwBox {
+            position: relative;
+        }
+
+        .pwToggle {
+            position: absolute;
+            right: 12px;
+            top: 13px;
+            cursor: pointer;
+            color: #bbbbbb;
+            font-size: 0.9rem;
+        }
+
+        .linkArea {
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .linkArea a {
+            color: #4fa7ff;
+            font-size: 0.95rem;
+            text-decoration: none;
+        }
+
+        .linkArea a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
+
 <body>
-<h1>Login</h1>
+<div class="box">
 
-<input id="email" type="email" placeholder="Email"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
-<button id="loginBtn">Login</button>
+    <h1>ログイン</h1>
 
-<p id="msg"></p>
+    <input id="email" type="email" placeholder="メールアドレス">
+
+    <div class="pwBox">
+        <input id="password" type="password" placeholder="パスワード">
+        <span id="toggle" class="pwToggle">表示</span>
+    </div>
+
+    <button id="loginBtn">ログイン</button>
+
+    <div class="linkArea">
+        <a href="register.html">アカウントを作成する</a>
+    </div>
+
+    <p id="msg"></p>
+
+</div>
 
 <script type="module">
 import { supabase } from "./supabase.js";
 
-document.getElementById("loginBtn").addEventListener("click", async () => {
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const msg = document.getElementById("msg");
+const toggle = document.getElementById("toggle");
+const btn = document.getElementById("loginBtn");
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+async function login() {
+
+    const mailText = email.value.trim();
+    const passText = password.value.trim();
+
+    if (!mailText || !passText) {
+        msg.textContent = "メールアドレスとパスワードを入力してください。";
+        msg.className = "error";
+        return;
+    }
+
+    btn.disabled = true;
+    btn.style.opacity = "0.4";
 
     let { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+        email: mailText,
+        password: passText
     });
 
     if (error) {
-        document.getElementById("msg").textContent = error.message;
+        msg.textContent = "ログインに失敗しました。メールまたはパスワードを確認してください。";
+        msg.className = "error";
+        btn.disabled = false;
+        btn.style.opacity = "1";
     } else {
         window.location.href = "index.html";
     }
+}
 
+// ボタン
+btn.addEventListener("click", login);
+
+// Enterキー
+document.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") login();
+});
+
+// パスワード表示切替
+toggle.addEventListener("click", () => {
+    password.type = password.type === "password" ? "text" : "password";
 });
 </script>
 
