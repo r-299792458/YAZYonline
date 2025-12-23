@@ -247,7 +247,7 @@
 
         <div class="modalContent">
             <p><strong>メール：</strong><span id="profileEmail"></span></p>
-            <p><strong>ニックネーム：</strong>未設定</p>
+            <p><strong>ニックネーム：</strong><span id="profileNickname">未設定<\span></p>
             <p><strong>レベル：</strong>1</p>
             <p><strong>レート：</strong>0</p>
             <p><strong>実績：</strong>0 / 10</p>
@@ -266,7 +266,7 @@
 
             <div class="settingSection">
                 <h3>アカウント設定</h3>
-                <button class="settingItem">ニックネーム変更</button>
+                <button class="settingItem" id="openNickname">ニックネーム変更</button>
                 <button class="settingItem">メールアドレス変更</button>
                 <button class="settingItem">パスワード変更</button>
             </div>
@@ -290,6 +290,21 @@
     </div>
 </div>
 
+<div id="nicknameOverlay" style="display:none;">
+    <div id="settingModal">
+        <div class="modalHeader">
+            <span>ニックネーム変更</span>
+            <button id="closeNickname">✕</button>
+        </div>
+
+        <div class="modalContent">
+            <input id="nicknameInput" type="text" placeholder="新しいニックネーム">
+            <button class="startBtn" id="saveNickname">保存</button>
+            <p id="nicknameMsg"></p>
+        </div>
+    </div>
+</div>
+
 <script type="module">
 import { supabase } from "./supabase.js";
 
@@ -297,6 +312,19 @@ import { supabase } from "./supabase.js";
    ログインチェック
 ========================= */
 const { data: { session } } = await supabase.auth.getSession();
+    // プロフィール取得
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("nickname")
+        .eq("id", session.user.id)
+        .single();
+
+    // 表示名決定（ニックネーム優先）
+    const displayName = profile?.nickname || session.user.email;
+    
+    // ヘッダー表示
+    document.getElementById("userEmail").textContent =
+    "👤 " + displayName;
 
 if (!session) {
     window.location.href = "login.html";
@@ -369,7 +397,62 @@ settingOverlay.addEventListener("click", (e) => {
         settingOverlay.style.display = "none";
     }
 });
-</script>
 
+/* =========================
+   ニックネーム
+========================= */
+const profileNickname = document.getElementById("profileNickname");
+
+profileNickname.textContent =
+    profile?.nickname || "未設定";
+
+const openNickname = document.getElementById("openNickname");
+const nicknameOverlay = document.getElementById("nicknameOverlay");
+const closeNickname = document.getElementById("closeNickname");
+const saveNickname = document.getElementById("saveNickname");
+
+openNickname.addEventListener("click", () => {
+    nicknameOverlay.style.display = "flex";
+});
+
+closeNickname.addEventListener("click", () => {
+    nicknameOverlay.style.display = "none";
+});
+
+saveNickname.addEventListener("click", async () => {
+    const newName = document.getElementById("nicknameInput").value.trim();
+    const msg = document.getElementById("nicknameMsg");
+
+    if (!newName) {
+        msg.textContent = "ニックネームを入力してください";
+        msg.className = "error";
+        return;
+    }
+
+    const { error } = await supabase
+        .from("profiles")
+        .upsert({
+            id: session.user.id,
+            nickname: newName
+        });
+
+    if (error) {
+        msg.textContent = "保存に失敗しました";
+        msg.className = "error";
+        return;
+    }
+
+    // 即時反映
+    document.getElementById("userEmail").textContent = "👤 " + newName;
+    profileNickname.textContent = newName;
+
+    msg.textContent = "保存しました";
+    msg.className = "success";
+
+    setTimeout(() => {
+        nicknameOverlay.style.display = "none";
+    }, 800);
+});
+</script>
 </body>
 </html>
