@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
     <meta charset="utf-8" />
     <title>Main</title>
@@ -7,17 +7,30 @@
 <body>
 
 <h1>Welcome!</h1>
+<p id="userEmail"></p>
 
 <button id="logoutBtn">Logout</button>
 
 <script type="module">
 import { supabase } from "./supabase.js";
 
+// ログインチェック
+const { data: { session } } = await supabase.auth.getSession();
+
+if (!session) {
+    // 未ログインならログインページへ
+    window.location.href = "login.html";
+} else {
+    // ログイン中ユーザー情報表示（後でゲーム用に使える）
+    document.getElementById("userEmail").textContent =
+        "ログイン中: " + session.user.email;
+}
+
+// ログアウト
 document.getElementById("logoutBtn").addEventListener("click", async () => {
     await supabase.auth.signOut();
     window.location.href = "login.html";
 });
-
 </script>
 
 </body>
