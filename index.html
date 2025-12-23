@@ -2,37 +2,158 @@
 <html lang="ja">
 <head>
     <meta charset="utf-8" />
-    <title>Main</title>
+    <title>YAZY Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #1b1b1b;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== ヘッダー ===== */
+        header {
+            height: 56px;
+            background: #242424;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+
+        .user {
+            color: #4fa7ff;
+            font-size: 0.95rem;
+        }
+
+        .logout {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* ===== メイン ===== */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .startBtn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            background: #3a8dde;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* ===== フッター ===== */
+        footer {
+            height: 56px;
+            background: #242424;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        footer button {
+            background: none;
+            border: none;
+            color: #bbbbbb;
+            cursor: pointer;
+        }
+    </style>
 </head>
+
 <body>
 
-<h1>Welcome!</h1>
-<p id="userEmail"></p>
+<header>
+    <div class="user" id="userEmail">Loading...</div>
+    <button class="logout" id="logoutBtn">ログアウト</button>
+</header>
 
-<button id="logoutBtn">Logout</button>
+<main>
+    <div class="container">
+        <h1>YAZY Online</h1>
+
+        <input
+            type="text"
+            placeholder="部屋番号（任意）"
+            maxlength="10"
+        >
+
+        <button class="startBtn">▶ ゲーム開始</button>
+    </div>
+</main>
+
+<footer>
+    <button>🏆 実績</button>
+    <button>⚙ 設定</button>
+</footer>
 
 <script type="module">
 import { supabase } from "./supabase.js";
 
-// ログインチェック
+/* =========================
+   ログインチェック
+========================= */
 const { data: { session } } = await supabase.auth.getSession();
 
 if (!session) {
-    // 未ログインならログインページへ
     window.location.href = "login.html";
 } else {
-    // ログイン中ユーザー情報表示（後でゲーム用に使える）
     document.getElementById("userEmail").textContent =
-        "ログイン中: " + session.user.email;
+        "👤 " + session.user.email;
 }
 
+/* =========================
+   セッション監視
+========================= */
 supabase.auth.onAuthStateChange((event, session) => {
     if (!session) {
         window.location.href = "login.html";
     }
 });
 
-// ログアウト
+/* =========================
+   ログアウト
+========================= */
 document.getElementById("logoutBtn").addEventListener("click", async () => {
     await supabase.auth.signOut();
     window.location.href = "login.html";
