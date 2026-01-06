@@ -328,26 +328,31 @@
 import { supabase } from "./supabase.js";
 
 /* =========================
-   ログインチェック
+   ログインガード
 ========================= */
-const { data: { session } } = await supabase.auth.getSession();
-    // プロフィール取得
-    const { data: profile } = await supabase
-        .from("profiles")
-        .select("nickname")
-        .eq("id", session.user.id)
-        .single();
+const { data: error } = await supabase.auth.getSession();
 
-    // 表示名決定（ニックネーム優先）
-    const displayName = profile?.nickname || session.user.email;
-    
-    // ヘッダー表示
-    document.getElementById("userEmail").textContent =
-    "👤 " + displayName;
-
-if (!session) {
-    window.location.href = "login.html";
+if (error || !data.session) {
+    window.location.replace("login.html");
+    throw new Error("No session");
 }
+
+const session = data.session;
+    
+/* =========================
+   プロフィール取得
+========================= */
+const { data: profile } = await supabase
+    .from("profiles")
+    .select("nickname")
+    .eq("id", session.user.id)
+    .single();
+
+// 表示名決定（ニックネーム優先）
+const displayName = profile?.nickname || session.user.email;
+    
+// ヘッダー表示
+document.getElementById("userEmail").textContent = "👤 " + displayName;
 
 /* =========================
    セッション監視
