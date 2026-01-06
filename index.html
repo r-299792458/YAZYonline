@@ -266,7 +266,7 @@
 
         <div class="modalContent">
             <p><strong>メール：</strong><span id="profileEmail"></span></p>
-            <p><strong>ニックネーム：</strong><span id="profileNickname">未設定<\span></p>
+            <p><strong>ニックネーム：</strong><span id="profileNickname">未設定</span>span></p>
             <p><strong>レベル：</strong>1</p>
             <p><strong>レート：</strong>0</p>
             <p><strong>実績：</strong>0 / 10</p>
@@ -330,7 +330,7 @@ import { supabase } from "./supabase.js";
 /* =========================
    ログインガード
 ========================= */
-const { data: error } = await supabase.auth.getSession();
+const { data, error } = await supabase.auth.getSession();
 
 if (error || !data.session) {
     window.location.replace("login.html");
