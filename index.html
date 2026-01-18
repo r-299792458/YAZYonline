@@ -461,7 +461,7 @@ saveNickname.addEventListener("click", async () => {
         .auth
         .updateUser({
             data: {
-                nickname: newName
+                full_name: newName
             }
         });
     if (authError) {
