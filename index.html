@@ -275,7 +275,7 @@
 <footer>
     <button>🥇 ランキング</button>
     <button>🏆 実績</button>
-    <button>⚙ 設定</button>
+    <button id="openSetting">⚙ 設定</button>
 </footer>
 
 <div id="profileOverlay" style="display:none;">
@@ -439,7 +439,7 @@ const settingOverlay = document.getElementById("settingOverlay");
 const closeSetting = document.getElementById("closeSetting");
 
 // フッターの設定ボタン
-document.querySelector("footer button:nth-child(3)")
+document.getElementById("openSetting")
     .addEventListener("click", () => {
         settingOverlay.style.display = "flex";
     });
@@ -516,6 +516,7 @@ saveNickname.addEventListener("click", async () => {
     }
 
     // 即時反映
+    profile.nickname = newName;
     document.getElementById("userEmail").textContent = "👤 " + newName;
     profileNickname.textContent = newName;
 
