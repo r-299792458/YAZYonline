@@ -464,6 +464,9 @@ saveNickname.addEventListener("click", async () => {
                 nickname: newName
             }
         });
+    if (authError) {
+        console.warn("Auth側のディスプレイネーム更新に失敗:",authError.message);
+    }
 
     if (error) {
         msg.textContent = "保存に失敗しました";
