@@ -227,6 +227,27 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.7);
             animation: fadeIn 0.2s ease;
         }
+
+        /* ===== メール変更モーダル ===== */
+        #emailOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        #emailModal {
+            background: #242424;
+            width: 90%;
+            max-width: 320px;
+            border-radius: 14px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.7);
+            animation: fadeIn 0.2s ease;
+        }
+
     </style>
 </head>
 
@@ -286,7 +307,7 @@
             <div class="settingSection">
                 <h3>アカウント設定</h3>
                 <button class="settingItem" id="openNickname">ニックネーム変更</button>
-                <button class="settingItem">メールアドレス変更</button>
+                <button class="settingItem" id="openEmail">メールアドレス変更</button>
                 <button class="settingItem">パスワード変更</button>
             </div>
 
@@ -320,6 +341,21 @@
             <input id="nicknameInput" type="text" placeholder="新しいニックネーム">
             <button class="startBtn" id="saveNickname">保存</button>
             <p id="nicknameMsg"></p>
+        </div>
+    </div>
+</div>
+
+<div id="emailOverlay" style="display:none;">
+    <div id="emailModal">
+        <div class="modalHeader">
+            <span>メールアドレス変更</span>
+            <button id="closeEmail">✕</button>
+        </div>
+
+        <div class="modalContent">
+            <input id="emailInput" type="email" placeholder="新しいメールアドレス">
+            <button class="startBtn" id="saveEmail">変更する</button>
+            <p id="emailMsg"></p>
         </div>
     </div>
 </div>
@@ -495,6 +531,58 @@ nicknameOverlay.addEventListener("click", (e) => {
     if (e.target === nicknameOverlay) {
         nicknameOverlay.style.display = "none";
     }
+});
+
+/* =========================
+   メールアドレス
+========================= */
+const openEmail = document.getElementById("openEmail");
+const emailOverlay = document.getElementById("emailOverlay");
+const closeEmail = document.getElementById("closeEmail");
+const saveEmail = document.getElementById("saveEmail");
+
+openEmail.addEventListener("click", () => {
+    const input = document.getElementById("emailInput");
+    const msg = document.getElementById("emailMsg");
+    input.value = "";
+    msg.textContent = "";
+    msg.className = "";
+    emailOverlay.style.display = "flex";
+});
+
+closeEmail.addEventListener("click", () => {
+    emailOverlay.style.display = "none";
+});
+
+emailOverlay.addEventListener("click", (e) => {
+    if (e.target === emailOverlay) {
+        emailOverlay.style.display = "none";
+    }
+});
+
+saveEmail.addEventListener("click", async () => {
+    const newEmail = document.getElementById("emailInput").value.trim();
+    const msg = document.getElementById("emailMsg");
+
+    if (!newEmail) {
+        msg.textContent = "メールアドレスを入力してください";
+        msg.className = "error";
+        return;
+    }
+
+    const { error } = await supabase.auth.updateUser({
+        email: newEmail
+    });
+
+    if (error) {
+        msg.textContent = "変更に失敗しました";
+        msg.className = "error";
+        return;
+    }
+
+    msg.textContent =
+        "確認メールを送信しました。メール内のリンクを確認してください。";
+    msg.className = "success";
 });
 
 </script>
