@@ -457,6 +457,14 @@ saveNickname.addEventListener("click", async () => {
             nickname: newName
         });
 
+    const { error: authError } = await supabase
+        .auth
+        .updateUser({
+            data: {
+                nickname: newName
+            }
+        });
+
     if (error) {
         msg.textContent = "保存に失敗しました";
         msg.className = "error";
