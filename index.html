@@ -433,6 +433,11 @@ const closeNickname = document.getElementById("closeNickname");
 const saveNickname = document.getElementById("saveNickname");
 
 openNickname.addEventListener("click", () => {
+    const input = document.getElementById("nicknameInput");
+    const msg = document.getElementById("nicknameMsg");
+    input.value = profile?.nickname || "";
+    msg.textContent = "";
+    msg.className = "";
     nicknameOverlay.style.display = "flex";
 });
 
