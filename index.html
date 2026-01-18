@@ -308,7 +308,7 @@
                 <h3>アカウント設定</h3>
                 <button class="settingItem" id="openNickname">ニックネーム変更</button>
                 <button class="settingItem" id="openEmail">メールアドレス変更</button>
-                <button class="settingItem">パスワード変更</button>
+                <button class="settingItem" id="openPassword">パスワード変更</button>
             </div>
 
             <div class="settingSection">
@@ -586,6 +586,14 @@ saveEmail.addEventListener("click", async () => {
     msg.className = "success";
 });
 
+/* =========================
+   パスワード1
+========================= */
+const openPassword = document.getElementById("openPassword");
+
+openPassword.addEventListener("click", () => {
+    window.location.href = "update_password.html";
+});
 </script>
 </body>
 </html>
