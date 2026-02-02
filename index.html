@@ -71,7 +71,7 @@
             margin-bottom: 16px;
         }
 
-        .startBtn {
+        .start {
             width: 100%;
             padding: 14px;
             border: none;
@@ -263,12 +263,13 @@
         <h1>YAZY Online</h1>
 
         <input
+            id="roomNumber"
             type="text"
             placeholder="部屋番号（任意）"
             maxlength="10"
         >
 
-        <button class="startBtn">▶ ゲーム開始</button>
+        <button class="start" id="startBtn">▶ ゲーム開始</button>
     </div>
 </main>
 
@@ -384,7 +385,7 @@ const { data: profile } = await supabase
     .eq("id", session.user.id)
     .single();
 
-// 表示名決定（ニックネーム優先）
+// 表示名決定
 const displayName = profile?.nickname || session.user.email;
     
 // ヘッダー表示
@@ -414,18 +415,15 @@ const profileOverlay = document.getElementById("profileOverlay");
 const profileEmail = document.getElementById("profileEmail");
 const closeProfile = document.getElementById("closeProfile");
 
-// ヘッダーのユーザー名をクリック
 document.getElementById("userEmail").addEventListener("click", () => {
     profileEmail.textContent = session.user.email;
     profileOverlay.style.display = "flex";
 });
 
-// 閉じるボタン
 closeProfile.addEventListener("click", () => {
     profileOverlay.style.display = "none";
 });
 
-// 背景クリックで閉じる
 profileOverlay.addEventListener("click", (e) => {
     if (e.target === profileOverlay) {
         profileOverlay.style.display = "none";
@@ -438,13 +436,11 @@ profileOverlay.addEventListener("click", (e) => {
 const settingOverlay = document.getElementById("settingOverlay");
 const closeSetting = document.getElementById("closeSetting");
 
-// フッターの設定ボタン
 document.getElementById("openSetting")
     .addEventListener("click", () => {
         settingOverlay.style.display = "flex";
     });
-
-// 閉じる
+    
 closeSetting.addEventListener("click", () => {
     settingOverlay.style.display = "none";
 });
@@ -515,7 +511,6 @@ saveNickname.addEventListener("click", async () => {
         return;
     }
 
-    // 即時反映
     profile.nickname = newName;
     document.getElementById("userEmail").textContent = "👤 " + newName;
     profileNickname.textContent = newName;
@@ -587,13 +582,89 @@ saveEmail.addEventListener("click", async () => {
 });
 
 /* =========================
-   パスワード1
+   パスワード
 ========================= */
 const openPassword = document.getElementById("openPassword");
 
 openPassword.addEventListener("click", () => {
     window.location.href = "update_password.html";
 });
+
+/* =========================
+   マッチ開始
+========================= */
+const starBtn = document.getElementById("startBtn");
+
+startBtn.addEventListener("click", async () => {
+    const roomNumber = document.getElementById("roomNumber").value.trim();
+
+    if (roomNumber === "") {
+        await createRoom();
+    } else {
+        await joinRoom(roomNumber);
+    }
+});
+
+async function createRoom() {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user.id;
+
+    const roomNumber = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const { data: room, error } = await supabase
+        .from("rooms")
+        .insert({
+            room_number: roomNumber,
+            host_id: userId
+        })
+        .select()
+        .single();
+
+    if (error) {
+        alert("部屋作成に失敗しました");
+        console.error(error);
+        return;
+    }
+
+    await supabase.from("room_members").insert({
+        room_id: room.id,
+        user_id: userId,
+        is_host: true
+    });
+
+    window.location.href = `room.html?roomId=${room.id}`;
+}
+
+async function joinRoom(roomNumber) {
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user.id;
+
+    const { data: room, error } = await supabase
+        .from("rooms")
+        .select("*")
+        .eq("room_number", roomNumber)
+        .single();
+
+    if (error || !room) {
+        alert("部屋が見つかりません");
+        return;
+    }
+
+    const { error: joinError } = await supabase
+        .from("room_members")
+        .insert({
+            room_id: room.id,
+            user_id: userId
+        });
+
+    if (joinError) {
+        alert("参加に失敗しました")
+        console.error(joinError);
+        return;
+    }
+
+    window.location.href = `room.html?roomId=${room.id}`;
+}
 </script>
 </body>
 </html>
