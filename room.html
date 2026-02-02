@@ -1,0 +1,32 @@
+<html lang="ja">
+<h1>部屋</h1>
+<div id="members"></div>
+<script>
+const params = new URLSearchParams(location.search);
+const roomId = params.get("roomId");
+
+async function loadMembers() {
+  const { data, error } = await supabase
+    .from("room_members")
+    .select("user_id, is_host")
+    .eq("room_id", roomId);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const div = document.getElementById("members");
+  div.innerHTML = "";
+
+  data.forEach(m => {
+    const p = document.createElement("div");
+    p.textContent = m.is_host ? `${m.user_id} (host)` : m.user_id;
+    div.appendChild(p);
+  });
+}
+
+loadMembers();
+</script>
+</body>
+</html>
